@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+        <iframe src="http://kateshl.ga/domain_two.html" id="iframe" name="iframeName"></iframe>
+        <div>
+            <button id="addRecord">Добавить запись</button>
+            <button id="removeRecord">Удалить запись</button>
+        </div>
+
+        <script>
+            "use strict";
+            let iframe = window.frames.iframeName;
+
+            document.getElementById("iframe").onload = () => {
+                iframe.postMessage("ready", "*");
+            }
+
+            window.addEventListener("message", event => {
+                if (event.origin !== "http://kateshl.ga") {
+                    return;
+                }
+
+                let callback = new Function('str', event.data.callback);
+
+                if (event.data.localStorage) {
+                    console.log(JSON.parse(event.data.localStorage));
+                    callback(event.data.str);
+                }
+
+                if (event.data.addedRecord) {
+                    console.log("written");
+                    callback(event.data.str);
+                }
+
+                if (event.data.removedRecord) {
+                    console.log("removed");
+                    callback(event.data.str);
+                }
+            });
+
+            document.getElementById("addRecord").onclick = event => {
+                let record = prompt("Введите текст", "Текст...");
+                iframe.postMessage({"addRecord": record}, "*");
+            };
+
+            document.getElementById("removeRecord").onclick = event => {
+                iframe.postMessage("removeRecord", "*");
+            };
+        </script>
+    </body>
+</html>

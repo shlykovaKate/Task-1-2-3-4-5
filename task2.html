@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+        <form name="formName" id="formId">
+            <div>
+                <h3>Size:</h3>
+
+                <input type="radio" name="size" value="S" id="sizeS">
+                <label for="sizeS">S</label><br>
+                
+                <input type="radio" name="size" value="M" id="sizeM">
+                <label for="sizeM">M</label><br>
+                
+                <input type="radio" name="size" value="L" id="sizeL">
+                <label for="sizeL">L</label><br>
+            </div>
+            <br>
+            <div>
+                <h3>Color:</h3>
+
+                <input type="checkbox" name="color" value="1" id="color1">
+                <label for="color1">1</label><br>
+                
+                <input type="checkbox" name="color" value="2" id="color2">
+                <label for="color2">2</label><br>
+                
+                <input type="checkbox" name="color" value="3" id="color3">
+                <label for="color3">3</label><br>
+                
+                <input type="checkbox" name="color" value="4" id="color4">
+                <label for="color4">4</label><br>
+                
+                <input type="checkbox" name="color" value="5" id="color5">
+                <label for="color5">5</label><br>
+            </div>
+            <br>
+            <div>
+                <h3>Manufacturer:</h3>
+
+                <select multiple name="manufacturer" id="manufacturer" style="width:150px">
+                    <option value="aaa">aaa</option>
+                    <option value="b&c">b&c</option>
+                    <option value="ddd">ddd</option>
+                    <option value="eee">eee</option>
+                </select>
+            </div>
+        </form>
+        <div>
+            <h3>Sale:</h3>
+
+            <input type="checkbox" name="sale" value="1">
+            <label for="sale">Sale</label>
+        </div>
+        <script>
+            "use strict";
+            let init = () => {
+                let form = document.forms.formName;
+                let formElements = form.querySelectorAll('input[type=checkbox], input[type=radio], select');
+                let url = new URL("http://example.com/filter?size=M&color=1&color=2&manufacturer=aaa&manufacturer=ddd");
+
+                for (let [name, value] of url.searchParams) {
+                    let elements = form.querySelectorAll(`*[name=${name}]`);
+
+                    for (let elem of elements) {
+                        if (elem.nodeName === 'INPUT') {
+                            elem.value === value && (elem.checked = true);
+                        }
+                        if (elem.nodeName === 'SELECT') {
+                            for (let i in elem.options) {
+                                elem.options[i].value === value && (elem.options[i].selected = true);
+                            }
+                        }
+                    }
+                }
+
+                for (let elem of formElements) {
+                    elem.onchange = e => {
+                        let formData = new FormData(form);
+                        let newUrl = new URL(url.origin);
+
+                        for (let [name, value] of formData) {
+                            newUrl.searchParams.append(name, value);
+                        }
+                        console.log("newUrl:", newUrl.href);
+                    }
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", init);
+
+        </script>
+    </body>
+</html>

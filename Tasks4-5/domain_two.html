@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+        <div id="localStorage"></div>
+
+        <script>
+            "use strict";
+            localStorage.setItem("record1", "Hello World");
+
+            let printLocalStorage = () => { 
+                let keys = Object.keys(localStorage);
+                let str = "";
+                for (let key of keys) {
+                    str += `<div> ${key}: ${localStorage.getItem(key)}</div>`;
+                }
+                document.getElementById("localStorage").innerHTML = str;
+            }
+
+            let getStr = () => {
+                let str = 'записей';
+                if (localStorage.length === 1) {
+                    str = 'запись';
+                } else if (localStorage.length > 1 && localStorage.length < 5) {
+                    str = 'записи';
+                }
+                return str;
+            }
+
+            printLocalStorage();
+
+            let strCallback = "console.log(`Cейчас ${str}`);";
+
+            window.addEventListener("message", event => {
+
+                if (event.origin !== "http://kate.hostronavt.ru") {
+                    return;
+                }
+
+                if (event.data === "ready") {
+                    event.source.postMessage({
+                        localStorage: JSON.stringify(localStorage),
+                        str: `${localStorage.length} ${getStr()}`,
+                        callback: strCallback
+                    }, "*");
+                    printLocalStorage();
+                }
+
+                if (event.data.addRecord) {
+                    localStorage.setItem(`record${localStorage.length+1}`, event.data.addRecord);
+                    event.source.postMessage({
+                        addedRecord: "addedRecord",
+                        str: `${localStorage.length} ${getStr()}`,
+                        callback: strCallback
+                    }, "*");
+                    printLocalStorage();
+                }
+
+                if (event.data === "removeRecord") {
+                    localStorage.removeItem(`record${localStorage.length}`);
+                    event.source.postMessage({
+                        removedRecord: "removedRecord",
+                        str: `${localStorage.length} ${getStr()}`,
+                        callback: strCallback
+                    }, "*");
+                    printLocalStorage();
+                }
+            });
+        </script>
+    </body>
+</html>
